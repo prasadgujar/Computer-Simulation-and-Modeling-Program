@@ -1,0 +1,42 @@
+GENERATE   2400,480,,,1    ;Overhaul of a rented set
+         QUEUE      Overhaul        ;Queue for service
+         QUEUE      Alljobs         ;Collect global statistics 
+         SEIZE      Maintenance     ;Obtain TV repairman
+         DEPART     Overhaul        ;Leave queue for man
+         DEPART     Alljobs         ;Collect global statistics
+         ADVANCE    600,60          ;Complete job 10+/-1 hours
+         RELEASE    Maintenance     ;Free repairman
+         TERMINATE                  ;Remove one transaction
+*****************************************************************        
+*  On the spot repairs        
+         GENERATE   90,10,,,2       ;On-the-spot repairs 
+         QUEUE      Spot            ;Queue for spot repairs
+         QUEUE      Alljobs         ;Collect global statistics
+         PREEMPT    Maintenance,PR  ;Get the TV repairman
+         DEPART     Spot            ;Depart the 'spot' queue
+         DEPART     Alljobs         ;Collect global statistics
+         ADVANCE    15,5            ;Time for tuning/fuse/fault
+         RETURN     Maintenance     ;Free maintenance man
+         TERMINATE            
+ ****************************************************************
+*  Normal repairs on customer owned sets
+         GENERATE   300,60,,,3      ;Normal TV Repairs
+         QUEUE      Service         ;Queue for service
+         QUEUE      Alljobs         ;Collect global statistics
+         PREEMPT    Maintenance,PR  ;Preempt maintenance man
+         DEPART     Service         ;Depart the 'service' queue
+         DEPART     Alljobs         ;Collect global statistics
+         ADVANCE    120,30          ;Normal service time
+         RETURN     Maintenance     ;Release the man
+         TERMINATE
+*****************************************************************
+         GENERATE   480             ;One xact each 8 hr. day
+         TERMINATE  1        
+*  Day counter        
+*****************************************************************
+*  Tables of queue statistics
+Overhaul QTABLE     Overhaul,10,10,20
+Spot     QTABLE     Spot,10,10,20
+Service  QTABLE     Service,10,10,20
+Alljobs  QTABLE     Alljobs,10,10,20
+*****************************************************************
